@@ -115,7 +115,7 @@ void Adam()
             double impulseCorrection = impulse[n] / (1 - std::pow(gamma, i + 1));
             double gradMemoryCorrection = gradMemory[n] / (1 - std::pow(beta, i + 1));
             double currentReg = (n >= 6) ? 0.0: reg;
-            weights[n] = weights[n] * (1 - currentReg) - lm * impulseCorrection / (std::sqrt(gradMemoryCorrection) + eps);
+            weights[n] = weights[n] * (1 - currentReg * lm) - lm * impulseCorrection / (std::sqrt(gradMemoryCorrection) + eps);
         }
         weights[5] = std::max(weights[5], -3.0);
     }
