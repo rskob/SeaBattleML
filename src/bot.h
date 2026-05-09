@@ -6,5 +6,8 @@ struct Bot{
 
 };
 
-Point GetBotShot(); // Функция которая отдает координаты выстрела бота
-void SetBotResult(Result result); // Функция, которая говорит боту результат выстрела
+int getMove();
+Point GetBotShot(Board& playerBoard); // Функция которая отдает координаты выстрела бота
+//void RemoveCell(Point p);
+void ResetBot(GameState& g);
+void SetBotResult(Result resulst, Point p, Board& playerBoard); // Функция, которая говорит боту результат выстрела

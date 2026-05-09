@@ -19,6 +19,8 @@ add_executable(SeaBattle
     src/bot.cpp
     src/game.cpp
     src/render.cpp
+    src/features.cpp
+    src/learn.cpp
 )
 
 target_include_directories(SeaBattle PRIVATE src)

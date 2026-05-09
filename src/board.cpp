@@ -113,13 +113,14 @@ bool ShipHasAlive(const Board& board, const std::vector<Point>& ship)
     return false;
 }   
 
-void MarkSunkShip(Board& board, Point hitPoint)
+std::vector<Point> MarkSunkShip(Board& board, Point hitPoint)
 {
+    std::vector<Point> remove;
     if (!InBounds(hitPoint.x, hitPoint.y))
-        return;
+        return remove;
 
     if (board[hitPoint.y][hitPoint.x] != Cell::Hit)
-        return;
+        return remove;
 
     std::vector<std::vector<bool>> visited(
         BOARD_SIZE,
@@ -131,7 +132,7 @@ void MarkSunkShip(Board& board, Point hitPoint)
     CollectShip(board, hitPoint.x, hitPoint.y, visited, ship);
 
     if (ShipHasAlive(board, ship))
-        return;
+        return remove;
 
     for (auto p : ship)
     {
@@ -148,10 +149,13 @@ void MarkSunkShip(Board& board, Point hitPoint)
                 if (board[ny][nx] == Cell::Empty)
                 {
                     board[ny][nx] = Cell::Miss;
+                    Point p = {nx, ny};
+                    remove.push_back(p);
                 }
             }
         }
     }
+    return remove;
 }
 
 Result Shoot(Board& b, Point p){
@@ -163,7 +167,7 @@ Result Shoot(Board& b, Point p){
         std::vector<std::vector<bool>> visited(BOARD_SIZE, std::vector<bool>(BOARD_SIZE, false));
         if (IsSank(b, p.x, p.y, visited))
         {
-            MarkSunkShip(b, p);
+            std::vector<Point> remove = MarkSunkShip(b, p);
             return Result::Sink;
         }
         return Result::Hit;

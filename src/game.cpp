@@ -2,6 +2,7 @@
 #include "board.h"
 #include "bot.h"
 #include "raylib.h"
+#include "features.h"
 
 constexpr int CELL=32;
 
@@ -11,14 +12,18 @@ constexpr int EY = 100;
 static float enemyTimer = 0.0f;
 constexpr float ENEMY_DELAY = 0.5f;
 
+
 void ResetGame(GameState& g, std::mt19937& r){
-    g.playerBoard=CreateBoard();
-    g.enemyBoard=CreateBoard();
-    PlaceShipsRandom(g.playerBoard,r);
-    PlaceShipsRandom(g.enemyBoard,r);
-    g.turn=Turn::Player;
-    g.gameOver=false;
-    g.playerWon=false;
+    g.playerBoard = CreateBoard();
+    g.enemyBoard = CreateBoard();
+
+    PlaceShipsRandom(g.playerBoard, r);
+    PlaceShipsRandom(g.enemyBoard, r);
+
+    g.turn = Turn::Player;
+    g.gameOver = false;
+    g.playerWon = false;
+    ResetBot(g);
 }
 
 bool MouseToCell(int mx,int my,int bx,int by,Point& out){
@@ -29,10 +34,15 @@ bool MouseToCell(int mx,int my,int bx,int by,Point& out){
     out={x,y}; return true;
 }
 
-void HandlePlayerTurn(GameState& g){
-    if(!IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) return;
+void HandlePlayerTurn(GameState& g, bool random=false){
     Point p;
-    if(!MouseToCell(GetMouseX(),GetMouseY(),EX,EY,p)) return;
+    if(random){
+        p = {rand() % BOARD_SIZE, rand() % BOARD_SIZE};
+    } else {
+        if(!IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) return;
+        if(!MouseToCell(GetMouseX(),GetMouseY(),EX,EY,p)) return;
+    }
+
     Result result = Shoot(g.enemyBoard,p);
     if(result == Result::Invalid) return;
     if(CountAliveDecks(g.enemyBoard)==0){
@@ -51,11 +61,11 @@ void HandleEnemyTurn(GameState& g,std::mt19937& r){
     enemyTimer = 0.0f;
     Result result = Result::Invalid;
     do{
-        Point p = GetBotShot();
+        Point p = GetBotShot(g.playerBoard);
         result = Shoot(g.playerBoard,p);
-        SetBotResult(result);
+        SetBotResult(result, p, g.playerBoard);
     }while (result == Result::Invalid);
-    
+
     if(CountAliveDecks(g.playerBoard)==0){
         g.gameOver=true; g.playerWon=false; return;
     }

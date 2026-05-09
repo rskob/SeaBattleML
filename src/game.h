@@ -3,6 +3,6 @@
 #include <random>
 
 void ResetGame(GameState&, std::mt19937&);
-void HandlePlayerTurn(GameState&);
+void HandlePlayerTurn(GameState& g, bool);
 void HandleEnemyTurn(GameState&, std::mt19937&);
 bool MouseToCell(int,int,int,int,Point&);

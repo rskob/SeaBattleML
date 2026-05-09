@@ -1,9 +1,10 @@
 #include "render.h"
 #include "board.h"
 #include "raylib.h"
-
+#include <format>
 #include <algorithm>
 #include <vector>
+#include "bot.h"
 
 constexpr int CELL = 32;
 
@@ -135,12 +136,13 @@ void DrawUI(const GameState& g)
 
     if (g.gameOver)
     {
-        const char* text = g.playerWon ? "PLAYER WINS!" : "BOT WINS!";
-        int fontSize = 56;
-        int textWidth = MeasureText(text, fontSize);
+        using namespace std::string_literals;
+        std::string text = g.playerWon ? "PLAYER WINS!" : "BOT WINS!\n"s + "(In " + std::to_string(getMove()) + " MOVES)";
+        int fontSize = 50;
+        int textWidth = MeasureText(text.c_str(), fontSize);
 
         DrawRectangle(320, 440, 640, 80, Fade(RAYWHITE, 0.85f));
-        DrawText(text, 640 - textWidth / 2, 452, fontSize,
+        DrawText(text.c_str(), 640 - textWidth / 2, 452, fontSize,
                  g.playerWon ? DARKGREEN : RED);
     }
 }
