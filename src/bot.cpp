@@ -197,3 +197,4 @@ void SetBotResult(Result result, Point p, Board& playerBoard)
         }
     }
 }
+
