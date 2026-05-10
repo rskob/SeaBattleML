@@ -6,6 +6,24 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
+#include <map>
+
+
+using algoritmPointer = void(*)();
+
+std::map<std::string, algoritmPointer> algorithms = {
+    {"Adam", Adam},
+    {"SGD", SGD}
+};
+
+
+algoritmPointer getAlgorithm(const std::string& algName)
+{
+    if(algorithms.find(algName) != algorithms.end()){
+        return algorithms[algName];
+    } 
+    return nullptr;
+}
 
 
 double model(const std::vector<double>& weights, const std::vector<double>& x)
@@ -71,6 +89,20 @@ void saveWeights(const std::vector<double>& weights)
     file << std::endl;
 }
 
+
+void saveLastAlgInfo(const std::string& algName)
+{
+    std::ofstream file("../data/last_alg.txt");
+    file << algName << std::endl;
+    file.close();
+}
+
+void getLastAlgInfo(std::string& algName)
+{
+    std::ifstream file("../data/last_alg.txt");
+    std::getline(file, algName);
+    file.close();
+}
 
 
 void Adam()
@@ -142,9 +174,9 @@ void SGD()
     static std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<int> dist(0, trainingSetSize - 1);
     std::vector<double> learningRate(14, 0.005);
-    int batchSize = 16;
+    int batchSize = 8;
     int iterations = 500000;
-    double lm = 0.0001;
+    double lm = 0.0002;
     for(int i = 0; i < trainingSetSize; i++){
         features[i][7] /= 20.0;
         features[i][8] /= 20.0;

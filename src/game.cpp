@@ -3,6 +3,7 @@
 #include "bot.h"
 #include "raylib.h"
 #include "features.h"
+#include <iostream>
 
 constexpr int CELL=32;
 
@@ -52,16 +53,18 @@ void HandlePlayerTurn(GameState& g, bool random=false){
         g.turn=Turn::Enemy;
 }
 
-void HandleEnemyTurn(GameState& g,std::mt19937& r){
+void HandleEnemyTurn(GameState& g,std::mt19937& r, std::vector<double>& weights, bool ignoreDElay=false){
     enemyTimer += GetFrameTime();
 
-    if (enemyTimer < ENEMY_DELAY)
+    if (!ignoreDElay and enemyTimer < ENEMY_DELAY)
+    {
         return;
+    }
 
     enemyTimer = 0.0f;
     Result result = Result::Invalid;
     do{
-        Point p = GetBotShot(g.playerBoard);
+        Point p = GetBotShot(g.playerBoard, weights);
         result = Shoot(g.playerBoard,p);
         SetBotResult(result, p, g.playerBoard);
     }while (result == Result::Invalid);

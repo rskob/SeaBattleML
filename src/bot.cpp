@@ -11,8 +11,8 @@
 #include <algorithm>
 
 #define MIN_ITERATIONS 0
-#define ML 1
 static int counter = 0;
+static bool memorize = false;
 
 
 static std::vector<Point> availablePoints;
@@ -23,6 +23,11 @@ static std::vector<Point> currentHits;
 int getMove()
 {
     return counter;
+}
+
+void setMemorize(bool value)
+{
+    memorize = value;
 }
 
 std::map<int, int> shipCount = {{1, 4}, {2, 3}, {3, 2}, {4, 1}};
@@ -88,42 +93,27 @@ void readWeights(std::vector<double>& weights)
     }
 }
 
-Point GetBotShot(Board& playerBoard)
+Point GetBotShot(Board& playerBoard, std::vector<double> &weights)
 {
-    if(ML){
-        std::ifstream weightsInfo("weights.txt");
-        std::vector<double> weights;
-        std::vector<std::pair<Point, double>> scores;
-        readWeights(weights);
-        for(Point pt: availablePoints){
-            Features ft(pt, playerBoard, shipCount);
-            std::vector<double> featuresLine = split(ft.ToString(), ';');
-            double result = model(weights, featuresLine);
-            scores.push_back({pt, result});
-            // if(result >= 0) std::cout << result << std::endl;
-        }
-        std::sort(scores.begin(), scores.end(),
-        [](const std::pair<Point, double>& a, const std::pair<Point, double>& b) {
-            return a.second > b.second;
-        });
-        return scores[0].first;
+    std::ifstream weightsInfo("weights.txt");
+    std::vector<std::pair<Point, double>> scores;
+    for(Point pt: availablePoints){
+        Features ft(pt, playerBoard, shipCount);
+        std::vector<double> featuresLine = split(ft.ToString(), ';');
+        double result = model(weights, featuresLine);
+        scores.push_back({pt, result});
     }
-
-    int index = rand() % availablePoints.size();
-
-    Point p = availablePoints[index];
-
-    availablePoints[index] = availablePoints.back();
-    availablePoints.pop_back();
-    return p;
+    std::sort(scores.begin(), scores.end(),
+    [](const std::pair<Point, double>& a, const std::pair<Point, double>& b) {
+        return a.second > b.second;
+    });
+    return scores[0].first;
 }
 
 void SetBotResult(Result result, Point p, Board& playerBoard)
 {
     counter++;
-    std::cout << "Move number: " << counter << std::endl;
     RemovePointFromVector(availablePoints, p);
-
 
     if(result == Result::Hit)
     {
@@ -138,8 +128,11 @@ void SetBotResult(Result result, Point p, Board& playerBoard)
             int target = -1;
             if(playerBoard[pt.y][pt.x] == Cell::Ship) target = 1;
             int number = rand();
-            if(target == -1 and (number % 2 == 0 or number % 3 == 0 or number % 4 == 0)) continue;
-            SaveFeature(file, f, target);
+            if(memorize){
+                if(target == -1 and (number % 2 == 0 or number % 3 == 0 or number % 4 == 0)) continue;
+                SaveFeature(file, f, target);
+            }
+            
         }
         file.close();
     }
