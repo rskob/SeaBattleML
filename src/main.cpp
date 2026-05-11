@@ -7,14 +7,12 @@
 #include <string.h>
 #include <iostream>
 #include <string.h>
-#include "tools.h"
+#include "options.h"
 
 
 
-
-int loop(std::mt19937& rng, std::vector<double> weights, bool random)
+int loop(GameState& g, std::mt19937& rng, std::vector<double> weights, bool random)
 {
-    GameState g;
     ResetGame(g, rng);
     while(!g.gameOver){
         if(g.turn==Turn::Player) HandlePlayerTurn(g, random);
@@ -25,105 +23,94 @@ int loop(std::mt19937& rng, std::vector<double> weights, bool random)
 
 
 int main(int argc, char* argv[]){
-    bool random = false;
     std::mt19937 rng(std::random_device{}());
     std::vector<double> weights;
     readWeights(weights);
-    if(argc > 1){
-        if(std::string(argv[1]) == "--learn"){
-            if(argc > 2){
-                std::string algName = std::string(argv[2]);
-                algoritmPointer alg = getAlgorithm(std::string(argv[2]));
-                if(alg != nullptr){ 
-                    alg();
-                    saveLastAlgInfo(algName);
-                    return 0;
-                }
-                std::cout << "Unknown algorithm: " << "'" << algName << "'" << std::endl;
-                return 1;
-            }
-            std::cout << "Too few arguments" << std::endl;
-            return 1;
-        } else if (std::string(argv[1]) == "--random")
+    Config config;
+    parseArguments(argc, argv, config);
+
+    if(!config.errorMessage.empty()){
+        std::cerr << "Error: " << config.errorMessage << std::endl;
+        return 1;
+    }
+    
+    switch (config.mode)
+    {
+        case Mode::Learn:
         {
-            random = true;
-            if(argc > 2 && std::string(argv[2]) == "--hide")
-            {
-                SetConfigFlags(FLAG_WINDOW_HIDDEN);
-            }
-        } else if (std::string(argv[1]) == "--accuracy"){
-            if(argc > 2){
-                std::string errorMessage;
-                checkIfStringIsPositiveInt(std::string(argv[2]), errorMessage);
-                if(!errorMessage.empty()){
-                    std::cout << errorMessage << std::endl;
-                    return 1;
-                }
-            } else {
-                std::cout << "Too few arguments" << std::endl;
+            std::string algName = config.algName;
+            algoritmPointer alg = getAlgorithm(algName);
+            if(alg == nullptr){
+                std::cerr << "Error: Unknown algorithm name: " << algName << std::endl;
                 return 1;
             }
-            unsigned long gameNumber = std::stoul(argv[2]);
+            alg();
+            saveLastAlgInfo(algName);
+            std::cout << algName << std::endl;
+            return 0;
+        }
+        case Mode::Accuracy:
+        {
             double mean = 0.0;
-            for(int i = 1; i <= gameNumber; i++){
-                std::cout << "Game: " << i << "/" << gameNumber << "\r";
+            for(int i = 1; i < config.gameNumber + 1; i++){
+                GameState g;
+                int moves = loop(g, rng, weights, true);
+                if(!g.playerWon) mean += moves;
+                else {
+                    i--;
+                    continue;
+                }
+                std::cout << "Game " << i << "/" << config.gameNumber << "\r";
                 std::cout.flush();
-                mean += loop(rng, weights, true);
             }
-            std::cout << "\r\33[2K";
+            clearConsole();
             std::string algName;
             getLastAlgInfo(algName);
             std::cout << "Algorithm: " << algName << std::endl;
-            std::cout << "Average moves for " << gameNumber << " games: " << mean / gameNumber << std::endl;
+            std::cout << "Average move number for " << config.gameNumber << " games: " << mean / config.gameNumber << std::endl;
             return 0;
-        } else if (std::string(argv[1]) == "--collect-data"){
-            if(argc > 2){
-                std::string errorMessage;
-                checkIfStringIsPositiveInt(std::string(argv[2]), errorMessage);
-                if(!errorMessage.empty()){
-                    std::cout << errorMessage << std::endl;
-                    return 1;
-                }
-            } else {
-                std::cout << "Too few arguments" << std::endl;
-                return 1;
-            }
+        }
+        case Mode::CollectData:
+        {
             setMemorize(true);
-            unsigned long gameNumber = std::stoul(argv[2]);
-            for(int i = 1; i <= gameNumber; i++){
-                std::cout << "Game: " << i << "/" << gameNumber << "\r";
+            for(int i = 1; i <= config.gameNumber; i++){
+                std::cout << "Game " << i << "/" << config.gameNumber << "\r";
                 std::cout.flush();
-                loop(rng, weights, true);
+                GameState g;
+                loop(g, rng, weights, true);
             }
+            clearConsole();
+            std::cout << "Collected data from " << config.gameNumber << " games" << std::endl;
             return 0;
-            
         }
-        else std::cout << "Unknown argument: " << argv[1] << std::endl;
-    }
+        case Mode::Play:
+        {
+            if(config.hide) SetConfigFlags(FLAG_WINDOW_HIDDEN);
 
-    InitWindow(1280,560,"SeaBattle");
-    SetTargetFPS(60);
+            InitWindow(1280,560,"SeaBattle");
+            SetTargetFPS(60);
 
-    GameState g;
-    ResetGame(g,rng);
-
-    while(!WindowShouldClose()){
-        if(!g.gameOver){
-            if(g.turn==Turn::Player) HandlePlayerTurn(g, random);
-            else HandleEnemyTurn(g,rng, weights, false);
-        }
-        else if(IsKeyPressed(KEY_R)){
+            GameState g;
             ResetGame(g,rng);
+
+            while(!WindowShouldClose()){
+                if(!g.gameOver){
+                    if(g.turn==Turn::Player) HandlePlayerTurn(g, config.random);
+                    else HandleEnemyTurn(g,rng, weights, false);
+                }
+                else if(IsKeyPressed(KEY_R)){
+                    ResetGame(g,rng);
+                }
+
+                BeginDrawing();
+                ClearBackground(RAYWHITE);
+                if(!g.gameOver)
+                    DrawText(g.turn == Turn::Player ? "PLAYER TURN" : "BOT TURN", 480, 20, 40, BLACK);      
+                DrawUI(g);
+                EndDrawing();
+            }
+
+            CloseWindow();
         }
-
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        if(!g.gameOver)
-            DrawText(g.turn == Turn::Player ? "PLAYER TURN" : "BOT TURN", 480, 20, 40, BLACK);      
-        DrawUI(g);
-        EndDrawing();
     }
-
-
-    CloseWindow();
 }
