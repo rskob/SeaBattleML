@@ -66,5 +66,5 @@ void checkIfStringIsPositiveInt(const std::string& s, std::string& errorMessage)
 
 void clearConsole()
 {
-    std::cout << "\r\33[2K" << std::endl;
+    std::cout << "\r\33[2K";
 }

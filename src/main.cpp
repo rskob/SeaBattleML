@@ -46,7 +46,6 @@ int main(int argc, char* argv[]){
             }
             alg();
             saveLastAlgInfo(algName);
-            std::cout << algName << std::endl;
             return 0;
         }
         case Mode::Accuracy:
