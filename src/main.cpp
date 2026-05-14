@@ -15,8 +15,8 @@ int loop(GameState& g, std::mt19937& rng, std::vector<double> weights, bool rand
 {
     ResetGame(g, rng);
     while(!g.gameOver){
-        if(g.turn==Turn::Player) HandlePlayerTurn(g, random);
-        else HandleEnemyTurn(g,rng, weights, true);
+        if(g.turn==Turn::Player) HandlePlayerTurn(g, rng, random);
+        else HandleEnemyTurn(g, weights, true);
     }
     return getMove();
 }
@@ -44,7 +44,17 @@ int main(int argc, char* argv[]){
                 std::cerr << "Error: Unknown algorithm name: " << algName << std::endl;
                 return 1;
             }
-            alg();
+            std::vector<std::vector<double>> features;
+            std::vector<int> targets;
+            readFeatures(features, targets);
+            uint64_t trainingSetSize = targets.size();
+
+            if(!trainingSetSize){
+                std::cerr << "No data in training set" << std::endl;
+                return 1;
+            }
+
+            alg(features, targets, trainingSetSize);
             saveLastAlgInfo(algName);
             return 0;
         }
@@ -94,8 +104,8 @@ int main(int argc, char* argv[]){
 
             while(!WindowShouldClose()){
                 if(!g.gameOver){
-                    if(g.turn==Turn::Player) HandlePlayerTurn(g, config.random);
-                    else HandleEnemyTurn(g,rng, weights, false);
+                    if(g.turn==Turn::Player) HandlePlayerTurn(g, rng, config.random);
+                    else HandleEnemyTurn(g, weights, false);
                 }
                 else if(IsKeyPressed(KEY_R)){
                     ResetGame(g,rng);

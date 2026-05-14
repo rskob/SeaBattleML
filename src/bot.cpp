@@ -95,7 +95,6 @@ void readWeights(std::vector<double>& weights)
 
 Point GetBotShot(Board& playerBoard, std::vector<double> &weights)
 {
-    std::ifstream weightsInfo("weights.txt");
     std::vector<std::pair<Point, double>> scores;
     for(Point pt: availablePoints){
         Features ft(pt, playerBoard, shipCount);
@@ -121,21 +120,21 @@ void SetBotResult(Result result, Point p, Board& playerBoard)
         return;
     }
 
-    std::ofstream file("../data/data.txt", std::ios::app);
-    if(counter > MIN_ITERATIONS){
-        for(Point pt: availablePoints){
-            Features f = GetFeatures(pt, playerBoard, shipCount);
-            int target = -1;
-            if(playerBoard[pt.y][pt.x] == Cell::Ship) target = 1;
-            int number = rand();
-            if(memorize){
-                if(target == -1 and (number % 2 == 0 or number % 3 == 0 or number % 4 == 0)) continue;
-                SaveFeature(file, f, target);
-            }
-            
+    std::ofstream file;
+    if(memorize) file.open("../data/data.txt", std::ios::app);
+    for(Point pt: availablePoints){
+        Features f = GetFeatures(pt, playerBoard, shipCount);
+        int target = -1;
+        if(playerBoard[pt.y][pt.x] == Cell::Ship) target = 1;
+        int number = rand();
+        if(memorize){
+            if(target == -1 and (number % 2 == 0 or number % 3 == 0 or number % 4 == 0)) continue;
+            SaveFeature(file, f, target);
         }
-        file.close();
+            
     }
+    file.close();
+  
 
     if(result == Result::Sink)
     {

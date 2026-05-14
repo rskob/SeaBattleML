@@ -35,10 +35,11 @@ bool MouseToCell(int mx,int my,int bx,int by,Point& out){
     out={x,y}; return true;
 }
 
-void HandlePlayerTurn(GameState& g, bool random=false){
+void HandlePlayerTurn(GameState& g, std::mt19937& r, bool random=false){
     Point p;
     if(random){
-        p = {rand() % BOARD_SIZE, rand() % BOARD_SIZE};
+        std::uniform_int_distribution<int> d(0,BOARD_SIZE-1);
+        p = {d(r), d(r)};
     } else {
         if(!IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) return;
         if(!MouseToCell(GetMouseX(),GetMouseY(),EX,EY,p)) return;
@@ -53,7 +54,7 @@ void HandlePlayerTurn(GameState& g, bool random=false){
         g.turn=Turn::Enemy;
 }
 
-void HandleEnemyTurn(GameState& g,std::mt19937& r, std::vector<double>& weights, bool ignoreDElay=false){
+void HandleEnemyTurn(GameState& g, std::vector<double>& weights, bool ignoreDElay=false){
     enemyTimer += GetFrameTime();
 
     if (!ignoreDElay and enemyTimer < ENEMY_DELAY)

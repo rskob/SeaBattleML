@@ -9,7 +9,8 @@
 #include <map>
 
 
-using algoritmPointer = void(*)();
+using algoritmPointer = void(*)(std::vector<std::vector<double>>&, std::vector<int>&, uint64_t);
+
 
 std::map<std::string, algoritmPointer> algorithms = {
     {"Adam", Adam},
@@ -105,17 +106,12 @@ void getLastAlgInfo(std::string& algName)
 }
 
 
-void Adam()
+void Adam(std::vector<std::vector<double>>& features, std::vector<int>& targets, uint64_t trainingSetSize)
 {
-    std::vector<std::vector<double>> features;
-    std::vector<int> targets;
-    readFeatures(features, targets);
-    unsigned int trainingSetSize = features.size();
-
     std::cout << "Adam is learning on " << trainingSetSize << " samples" << std::endl;
 
     std::vector<double> weights(14, 0.01);
-    unsigned int iterations = trainingSetSize;
+    uint64_t iterations = trainingSetSize;
     int batchSize = 20;
     double gamma = 0.99;
     double beta = 0.999;
@@ -161,13 +157,8 @@ void Adam()
     saveWeights(weights);
 }
 
-void SGD()
+void SGD(std::vector<std::vector<double>>& features, std::vector<int>& targets, uint64_t trainingSetSize)
 {
-    std::vector<std::vector<double>> features;
-    std::vector<int> targets;
-    readFeatures(features, targets);
-    unsigned int trainingSetSize = features.size();
-
     std::cout << "SGD is learning on " << trainingSetSize << " samples" << std::endl;
 
     std::vector<double> weights(14, 0);
@@ -205,5 +196,7 @@ void SGD()
     for(int i = 0; i < 14; i++){
         std::cout << weights[i] << " ";
     }
+    std::cout << std::endl;
+
     saveWeights(weights);
 }
