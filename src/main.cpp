@@ -1,6 +1,5 @@
 #include "game.h"
 #include "render.h"
-#include "raylib.h"
 #include <random>
 #include "bot.h"
 #include "learn.h"
@@ -8,7 +7,8 @@
 #include <iostream>
 #include <string.h>
 #include "options.h"
-
+#include <filesystem>
+#include "raylib.h"
 
 
 int loop(GameState& g, std::mt19937& rng, std::vector<double> weights, bool random)
@@ -23,6 +23,8 @@ int loop(GameState& g, std::mt19937& rng, std::vector<double> weights, bool rand
 
 
 int main(int argc, char* argv[]){
+    std::filesystem::create_directories("../data");
+
     std::mt19937 rng(std::random_device{}());
     std::vector<double> weights;
     readWeights(weights);

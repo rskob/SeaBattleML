@@ -44,13 +44,6 @@ void Features::setHits(Point pt, Board& board)
     coordSumMod2 = (pt.x + pt.y) % 2;
 }
 
-// void Features::interpretateCount(int count)
-// {
-//     if(count >= 2) placements2 += count - 2 + 1;
-//     if(count >= 3) placements3 += count -3 + 1;
-//     if(count >= 4) placements4 += count - 4 + 1;
-// }
-
 void Features::setPlacements(Point pt, Board& board)
 {
     int horizontalLeft = CountEmptyDirection(board, pt, -1, 0);
