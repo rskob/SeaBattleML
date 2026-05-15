@@ -5,7 +5,8 @@ enum class Mode{
     Train,
     Accuracy,
     CollectData,
-    Help
+    Help,
+    Current
 };
 
 struct Config {

@@ -128,5 +128,15 @@ int main(int argc, char* argv[]){
             showHelp();
             return 0;
         }
+        case Mode::Current:
+        {
+            std::string algName;
+            getLastAlgInfo(algName);
+            if(!algName.empty()){
+                std::cout << "Current algorithm: " << algName << std::endl;
+            } else {
+                std::cout << "Model is not trained yet" << std::endl;
+            }
+        }
     }
 }

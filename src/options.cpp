@@ -43,6 +43,8 @@ void parseArguments(int argc, char* argv[], Config& config)
             }  
         } else if(arg1 == "--help"){
             config.mode = Mode::Help;
+        } else if(arg1 == "--current"){
+            config.mode = Mode::Current;
         }
         else {
             config.errorMessage = "Unknown argument: " + arg1;
@@ -91,6 +93,7 @@ void showHelp()
 
     std::cout << "\nMACHINE LEARNING:" << std::endl;
     std::cout << "  --train <algorithm>   Train the linear classifier" << std::endl;
+    std::cout << "  --current             Print the name of the currently used algorithm" << std::endl;
     
     std::cout << "\n  Available Algorithms:" << std::endl;
     std::cout << "    [1] Adam  - Adaptive Moment Estimation (Best)" << std::endl;
