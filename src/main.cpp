@@ -37,7 +37,7 @@ int main(int argc, char* argv[]){
     
     switch (config.mode)
     {
-        case Mode::Learn:
+        case Mode::Train:
         {
             std::string algName = config.algName;
             algoritmPointer alg = getAlgorithm(algName);

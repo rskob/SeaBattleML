@@ -12,3 +12,5 @@ void saveLastAlgInfo(const std::string& algName);
 void getLastAlgInfo(std::string& algName);
 void readFeatures(std::vector<std::vector<double>>&, std::vector<int>&);
 algoritmPointer getAlgorithm(const std::string& algName);
+void SGD_M(std::vector<std::vector<double>>& features, std::vector<int>& targets, uint64_t trainingSetSize);
+void NAG(std::vector<std::vector<double>>& features, std::vector<int>& targets, uint64_t trainingSetSize);

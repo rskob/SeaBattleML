@@ -9,8 +9,8 @@ void parseArguments(int argc, char* argv[], Config& config)
 {
     if(argc > 1){
         std::string arg1 = std::string(argv[1]);
-        if(arg1 == "--learn"){
-            config.mode = Mode::Learn;
+        if(arg1 == "--train"){
+            config.mode = Mode::Train;
             if(argc > 2){
                 config.algName = std::string(argv[2]);
             } else {
@@ -90,12 +90,14 @@ void showHelp()
     std::cout << "  --accuracy <n>        Evaluate bot performance over <n> games" << std::endl;
 
     std::cout << "\nMACHINE LEARNING:" << std::endl;
-    std::cout << "  --learn <algorithm>   Train the linear classifier" << std::endl;
+    std::cout << "  --train <algorithm>   Train the linear classifier" << std::endl;
     
     std::cout << "\n  Available Algorithms:" << std::endl;
     std::cout << "    [1] Adam  - Adaptive Moment Estimation (Best)" << std::endl;
     std::cout << "    [2] SGD   - Stochastic Gradient Descent (Classic)" << std::endl;
-    std::cout << "    [3] SAG   - Stochastic Average Gradient (Stable)" << std::endl;
+    std::cout << "    [3] SGD_M - SGD with Momentum (Faster convergence)" << std::endl;
+    std::cout << "    [4] NAG   - Nesterov Accelerated Gradient (Predictive)" << std::endl;
+    std::cout << "    [5] SAG   - Stochastic Average Gradient (Stable)" << std::endl;
 
     std::cout << "\n===========================================================" << std::endl;
     std::cout << "  Hint: Use --hide with --random for game in headlles mode" << std::endl;

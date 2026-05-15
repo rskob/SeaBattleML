@@ -2,7 +2,7 @@
 
 enum class Mode{
     Play,
-    Learn,
+    Train,
     Accuracy,
     CollectData,
     Help
