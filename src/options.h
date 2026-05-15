@@ -4,7 +4,8 @@ enum class Mode{
     Play,
     Learn,
     Accuracy,
-    CollectData
+    CollectData,
+    Help
 };
 
 struct Config {
@@ -20,3 +21,4 @@ struct Config {
 void checkIfStringIsPositiveInt(const std::string& s, std::string& errorMessage);
 void parseArguments(int argc, char* argv[], Config& config);
 void clearConsole();
+void showHelp();

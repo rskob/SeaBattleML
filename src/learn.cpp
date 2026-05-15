@@ -14,7 +14,8 @@ using algoritmPointer = void(*)(std::vector<std::vector<double>>&, std::vector<i
 
 std::map<std::string, algoritmPointer> algorithms = {
     {"Adam", Adam},
-    {"SGD", SGD}
+    {"SGD", SGD},
+    {"SAG", SAG}
 };
 
 
@@ -125,7 +126,7 @@ void Adam(std::vector<std::vector<double>>& features, std::vector<int>& targets,
     std::vector<double> gradMemory(14, 0);
     for(int i = 0; i < iterations; i++){
         if(i % (iterations / 100) == 0) {
-            std :: cout << "Progress: " << (i * 100) / iterations << "%" << "\r";
+            std::cout << "Progress: " << (i * 100) / iterations << "%" << "\r";
             std::cout.flush();
         }
         std::vector<double> gradSum(14, 0);
@@ -177,7 +178,7 @@ void SGD(std::vector<std::vector<double>>& features, std::vector<int>& targets, 
 
     for(int i = 0; i < iterations; i++){
         if(i % (iterations / 100) == 0) {
-            std :: cout << "Progress: " << (i * 100) / iterations << "%" << "\r";
+            std::cout << "Progress: " << (i * 100) / iterations << "%" << "\r";
             std::cout.flush();
         }
         std::vector<double> batchGrad(14, 0);
@@ -200,3 +201,51 @@ void SGD(std::vector<std::vector<double>>& features, std::vector<int>& targets, 
 
     saveWeights(weights);
 }
+
+void SAG(std::vector<std::vector<double>>& features, std::vector<int>& targets, uint64_t trainingSetSize)
+{
+    std::cout << "SAG is learning on " << trainingSetSize << " samples" << std::endl;
+    std::vector<double> weights(14, 0);
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<int> dist(0, trainingSetSize - 1);
+    std::vector<std::vector<double>> gradients(trainingSetSize, std::vector<double>(14, 0));
+    std::vector<double> learningRate(14, 0.0001);
+    double reg = 0.0001;
+    uint64_t iterations = 100000;
+    int batchSize = 20;
+
+    std::vector<double> gradSum(14, 0);
+    for(int i = 0; i < trainingSetSize; i++){
+        std::vector<double> newGrad = gradient(weights, features[i], targets[i]);
+        gradients[i] = newGrad;
+        for(int j = 0; j < 14; j++){
+            gradSum[j] += newGrad[j];
+        }   
+    }
+    for(int i = 0; i < iterations; i++){
+        if(i % (iterations / 100) == 0) {
+            std::cout << "Progress: " << (i * 100) / iterations << "%" << "\r";
+            std::cout.flush();
+        }
+        for(int j = 0; j < batchSize; j++){
+            uint64_t k = dist(gen);
+            std::vector<double> newGrad = gradient(weights, features[k], targets[k]);
+            for(int j = 0; j < 14; j++){
+                gradSum[j] -= gradients[k][j];
+                gradSum[j] += newGrad[j];
+            }
+            gradients[k] = newGrad;
+        }
+        for(int j = 0; j < 14; j++){
+            weights[j] = weights[j] * (1 - reg * learningRate[j]) - learningRate[j] * (gradSum[j] / (double)trainingSetSize);
+        }
+    }
+    std::cout << "Training completed. Final weights: " << std::endl;
+    for(int i = 0; i < 14; i++){
+        std::cout << weights[i] << " ";
+    }
+    std::cout << std::endl;
+
+    saveWeights(weights);
+}
+

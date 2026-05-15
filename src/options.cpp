@@ -40,8 +40,11 @@ void parseArguments(int argc, char* argv[], Config& config)
                 }
             } else {
                 config.errorMessage = "Missing game number for --collect-data option";
-            }
-        } else {
+            }  
+        } else if(arg1 == "--help"){
+            config.mode = Mode::Help;
+        }
+        else {
             config.errorMessage = "Unknown argument: " + arg1;
         }
     }
@@ -68,3 +71,34 @@ void clearConsole()
 {
     std::cout << "\r\33[2K";
 }
+
+void showHelp()
+{
+    std::cout << "===========================================================" << std::endl;
+    std::cout << "                 SEABATTLE: PLAY WITH AI               " << std::endl;
+    std::cout << "===========================================================" << std::endl;
+    
+    std::cout << "\nUSAGE:" << std::endl;
+    std::cout << "  ./SeaBattle [OPTIONS]" << std::endl;
+
+    std::cout << "\nGAME MODES:" << std::endl;
+    std::cout << "  (no args)             Manual Play: Player vs Bot" << std::endl;
+    std::cout << "  --random              Simulation: Random moves vs Bot" << std::endl;
+
+    std::cout << "\nDATA & ANALYSIS:" << std::endl;
+    std::cout << "  --collect-data <n>    Play <n> games and save results to dataset" << std::endl;
+    std::cout << "  --accuracy <n>        Evaluate bot performance over <n> games" << std::endl;
+
+    std::cout << "\nMACHINE LEARNING:" << std::endl;
+    std::cout << "  --learn <algorithm>   Train the linear classifier" << std::endl;
+    
+    std::cout << "\n  Available Algorithms:" << std::endl;
+    std::cout << "    [1] Adam  - Adaptive Moment Estimation (Best)" << std::endl;
+    std::cout << "    [2] SGD   - Stochastic Gradient Descent (Classic)" << std::endl;
+    std::cout << "    [3] SAG   - Stochastic Average Gradient (Stable)" << std::endl;
+
+    std::cout << "\n===========================================================" << std::endl;
+    std::cout << "  Hint: Use --hide with --random for game in headlles mode" << std::endl;
+    std::cout << "===========================================================" << std::endl;
+}
+

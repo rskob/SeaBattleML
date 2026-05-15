@@ -26,6 +26,7 @@ int main(int argc, char* argv[]){
     std::mt19937 rng(std::random_device{}());
     std::vector<double> weights;
     readWeights(weights);
+    if(!weights.size()) weights.assign(14, 0);
     Config config;
     parseArguments(argc, argv, config);
 
@@ -120,6 +121,12 @@ int main(int argc, char* argv[]){
             }
 
             CloseWindow();
+            return 0;
+        }
+        case Mode::Help:
+        {
+            showHelp();
+            return 0;
         }
     }
 }
