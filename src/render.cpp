@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include "bot.h"
+#include "learn.h"
 
 constexpr int CELL = 32;
 
@@ -126,6 +127,14 @@ void DrawUI(const GameState& g)
 {
     DrawText("PLAYER", PX + 95, 50, 34, BLACK);
     DrawText("BOT", EX + 125, 50, 34, BLACK);
+    std::string algName;
+    getLastAlgInfo(algName);
+    if(!algName.empty()){
+        std::string text = "(Algorithm: " + algName + ")";
+        DrawText(text.c_str(), EX + 205, 50, 34, BLACK);
+    }
+    
+    
 
     DrawBoard(g.playerBoard, PX, PY, false);
     DrawBoard(g.enemyBoard, EX, EY, true);
